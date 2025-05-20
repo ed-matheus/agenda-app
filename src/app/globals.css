@@ -29,3 +29,12 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-rubik);
 }
+
+.btn {
+  padding: 0.75rem 1.2rem;
+  border-radius: 5px;
+}
+
+.btn:hover {
+  cursor: pointer;
+}

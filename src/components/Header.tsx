@@ -45,7 +45,7 @@ export default function Header() {
         <Link href="/agendar" className="hidden md:block">
           <button
             type="button"
-            className="bg-blue-500 hover:bg-blue-400 py-3 px-4 rounded text-white font-bold"
+            className="btn bg-blue-500 hover:bg-blue-400 text-white font-bold"
           >
             Agendar
           </button>
@@ -55,7 +55,7 @@ export default function Header() {
         <button
           type="button"
           onClick={toggleMenu}
-          className="md:hidden text-gray-700 focus:outline-none"
+          className="btn md:hidden text-gray-700 focus:outline-none"
         >
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
