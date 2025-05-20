@@ -1,104 +1,124 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function BookingForm() {
   const [form, setForm] = useState({
-    nome: '',
-    email: '',
-    servico: '',
-    data: '',
-    horario: '',
+    nome: "",
+    email: "",
+    telefone: "",
+    servico: "",
+    data: "",
+    horario: "",
   });
 
-  const [mensagem, setMensagem] = useState('');
+  const [mensagem, setMensagem] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch('/api/agendamento', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/agendamento", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
+    const data = await res.json();
+
     if (res.ok) {
-      setMensagem('Agendamento realizado com sucesso!');
-      setForm({ nome: '', email: '', servico: '', data: '', horario: '' });
+      setMensagem("Agendamento realizado com sucesso!");
+      setForm({
+        nome: "",
+        email: "",
+        telefone: "",
+        servico: "",
+        data: "",
+        horario: "",
+      });
     } else {
-      setMensagem('Erro ao agendar. Tente novamente.');
+      setMensagem(data.error || "Erro ao agendar.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center bg-white shadow-md rounded-xl p-6 md:p-8 space-y-4 gap-7">
-      <h2 className="text-xl font-bold mb-4">Agende seu horário</h2>
-
-      <input
-        type="text"
-        name="nome"
-        placeholder="Seu nome"
-        value={form.nome}
-        onChange={handleChange}
-        required
-        className="w-full p-3 border rounded-lg"
-      />
-
-      <input
-        type="email"
-        name="email"
-        placeholder="Seu e-mail"
-        value={form.email}
-        onChange={handleChange}
-        required
-        className="w-full p-3 border rounded-lg"
-      />
-
-      <select
-        name="servico"
-        value={form.servico}
-        onChange={handleChange}
-        required
-        className="w-full p-3 border rounded-lg"
-      >
-        <option value="" disabled>- Selecione o serviço -</option>
-        <option value="Consulta médica">Consulta médica</option>
-        <option value="Corte de cabelo">Corte de cabelo</option>
-        <option value="Sessão de coaching">Sessão de coaching</option>
-      </select>
-
-      <input
-        type="date"
-        name="data"
-        value={form.data}
-        onChange={handleChange}
-        required
-        className="w-full p-3 border rounded-lg"
-      />
-
-      <input
-        type="time"
-        name="horario"
-        value={form.horario}
-        onChange={handleChange}
-        required
-        className="w-full p-3 border rounded-lg"
-      />
-
-      <button
-        type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
-      >
-        Confirmar Agendamento
-      </button>
+    <div className="container mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold mb-6 text-center">Agendar Serviço</h1>
 
       {mensagem && (
-        <p className="text-center mt-4 text-sm text-green-600">{mensagem}</p>
+        <p className="text-center mb-4 text-blue-600 font-medium">{mensagem}</p>
       )}
-    </form>
+
+      <form onSubmit={handleSubmit} className="max-w-xl mx-auto grid gap-4">
+        <input
+          type="text"
+          name="nome"
+          placeholder="Seu nome"
+          value={form.nome}
+          onChange={handleChange}
+          required
+          className="border px-4 py-2 rounded"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Seu e-mail"
+          value={form.email}
+          onChange={handleChange}
+          required
+          className="border px-4 py-2 rounded"
+        />
+        <input
+          type="tel"
+          name="telefone"
+          placeholder="Telefone"
+          value={form.telefone}
+          onChange={handleChange}
+          required
+          className="border px-4 py-2 rounded"
+        />
+        <select
+          name="servico"
+          value={form.servico}
+          onChange={handleChange}
+          required
+          className="w-full p-3 border rounded-lg"
+        >
+          <option value="" disabled>
+            - Selecione o serviço -
+          </option>
+          <option value="Consulta médica">Consulta médica</option>
+          <option value="Corte de cabelo">Corte de cabelo</option>
+          <option value="Sessão de coaching">Sessão de coaching</option>
+        </select>
+        <input
+          type="date"
+          name="data"
+          value={form.data}
+          onChange={handleChange}
+          required
+          className="border px-4 py-2 rounded"
+        />
+        <input
+          type="time"
+          name="horario"
+          value={form.horario}
+          onChange={handleChange}
+          required
+          className="border px-4 py-2 rounded"
+        />
+        <button
+          type="submit"
+          className="btn bg-blue-500 text-white hover:bg-blue-400"
+        >
+          Confirmar Agendamento
+        </button>
+      </form>
+    </div>
   );
 }

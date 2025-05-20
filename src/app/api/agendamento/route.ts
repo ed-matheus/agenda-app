@@ -1,22 +1,53 @@
-import { NextResponse } from 'next/server';
-import fs from 'node:fs';
-import path from 'node:path';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@/generated/prisma";
+// import { prisma } from "@/lib/prisma";
 
-const filePath = path.join(process.cwd(), 'data', 'agendamentos.json');
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const data = await req.json();
-
   try {
-    const agendamentos = fs.existsSync(filePath)
-      ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
-      : [];
+    const body = await req.json();
 
-    agendamentos.push({ ...data, id: Date.now() });
+    const { nome, email, telefone, servico, data, horario } = body;
 
-    fs.writeFileSync(filePath, JSON.stringify(agendamentos, null, 2));
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    return NextResponse.json({ error: 'Erro ao salvar' }, { status: 500 });
+    if (!nome || !email || !telefone || !servico || !data || !horario) {
+      return NextResponse.json(
+        { error: "Campos obrigatórios faltando." },
+        { status: 400 }
+      );
+    }
+
+    const novoAgendamento = await prisma.agendamento.create({
+      data: {
+        nome,
+        email,
+        telefone,
+        servico,
+        data: new Date(data),
+        horario,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Agendamento realizado com sucesso!",
+      agendamento: novoAgendamento,
+    });
+  } catch (error) {
+    console.error(
+      "ERRO AO SALVAR AGENDAMENTO:",
+      JSON.stringify(error, null, 2)
+    );
+    return NextResponse.json(
+      { error: "Erro interno do servidor." },
+      { status: 500 }
+    );
   }
+}
+
+export async function GET() {
+  const agendamentos = await prisma.agendamento.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json(agendamentos)
 }
