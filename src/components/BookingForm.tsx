@@ -35,7 +35,7 @@ export default function BookingForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-xl p-6 space-y-4">
+    <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center bg-white shadow-md rounded-xl p-6 md:p-8 space-y-4 gap-7">
       <h2 className="text-xl font-bold mb-4">Agende seu horário</h2>
 
       <input
@@ -65,7 +65,7 @@ export default function BookingForm() {
         required
         className="w-full p-3 border rounded-lg"
       >
-        <option value="">Selecione o serviço</option>
+        <option value="" disabled>- Selecione o serviço -</option>
         <option value="Consulta médica">Consulta médica</option>
         <option value="Corte de cabelo">Corte de cabelo</option>
         <option value="Sessão de coaching">Sessão de coaching</option>
