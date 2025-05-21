@@ -14,13 +14,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Usuario {
+  id        Int          @id @default(autoincrement())
+  nome      String
+  telefone  String
+  email     String       @unique
+  senha     String       // Senha com hash (por segurança)
+  tipo      UsuarioTipo
+  createdAt DateTime     @default(now())
+
+  agendamentos Agendamento[]
+
+  @@map("usuarios") // Nome da tabela no banco
+}
+
 model Agendamento {
   id        Int      @id @default(autoincrement())
-  nome      String
-  email     String
-  telefone  String
   servico   String
-  data      DateTime
-  horario   String
+  dataHora  DateTime // Combina data e hora do agendamento
+  usuarioId Int
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
   createdAt DateTime @default(now())
+
+  @@map("agendamentos")
+}
+
+enum UsuarioTipo {
+  cliente
+  profissional
 }

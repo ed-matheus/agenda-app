@@ -8,9 +8,9 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { nome, email, telefone, servico, data, horario } = body;
+    const { servico, dataHora, usuarioId } = body;
 
-    if (!nome || !email || !telefone || !servico || !data || !horario) {
+    if (!servico || !dataHora || !usuarioId) {
       return NextResponse.json(
         { error: "Campos obrigatórios faltando." },
         { status: 400 }
@@ -19,12 +19,11 @@ export async function POST(req: Request) {
 
     const novoAgendamento = await prisma.agendamento.create({
       data: {
-        nome,
-        email,
-        telefone,
         servico,
-        data: new Date(data),
-        horario,
+        dataHora: new Date(dataHora),
+        usuario: {
+          connect: { id: usuarioId },
+        },
       },
     });
 
@@ -33,10 +32,7 @@ export async function POST(req: Request) {
       agendamento: novoAgendamento,
     });
   } catch (error) {
-    console.error(
-      "ERRO AO SALVAR AGENDAMENTO:",
-      JSON.stringify(error, null, 2)
-    );
+    console.error("ERRO AO SALVAR AGENDAMENTO:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor." },
       { status: 500 }
@@ -45,9 +41,20 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const agendamentos = await prisma.agendamento.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    const agendamentos = await prisma.agendamento.findMany({
+      include: {
+        usuario: true, // para retornar nome, email, etc.
+      },
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json(agendamentos)
+    return NextResponse.json(agendamentos);
+  } catch (error) {
+    console.error("ERRO AO BUSCAR AGENDAMENTOS:", error);
+    return NextResponse.json(
+      { error: "Erro ao buscar agendamentos." },
+      { status: 500 }
+    );
+  }
 }

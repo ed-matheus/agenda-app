@@ -120,14 +120,21 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.AgendamentoScalarFieldEnum = {
+exports.Prisma.UsuarioScalarFieldEnum = {
   id: 'id',
   nome: 'nome',
-  email: 'email',
   telefone: 'telefone',
+  email: 'email',
+  senha: 'senha',
+  tipo: 'tipo',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AgendamentoScalarFieldEnum = {
+  id: 'id',
   servico: 'servico',
-  data: 'data',
-  horario: 'horario',
+  dataHora: 'dataHora',
+  usuarioId: 'usuarioId',
   createdAt: 'createdAt'
 };
 
@@ -140,9 +147,13 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.UsuarioTipo = exports.$Enums.UsuarioTipo = {
+  cliente: 'cliente',
+  profissional: 'profissional'
+};
 
 exports.Prisma.ModelName = {
+  Usuario: 'Usuario',
   Agendamento: 'Agendamento'
 };
 
