@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 
 type Agendamento = {
   id: number;
@@ -58,13 +59,13 @@ export default function AdminTable() {
 
       {selected && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-5">
-          <div className="bg-gray-200 rounded-xl p-6 max-w-md w-full text-sm text-black relative">
+          <div className="bg-gray-200 rounded-xl p-8 max-w-md w-full text-sm text-black relative">
             <button
               type="button"
               onClick={() => setSelected(null)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white text-lg"
+              className="absolute top-2.5 right-2.5 text-lg"
             >
-              &times;
+              <X size={25} className="text-gray-400 hover:text-black hover:cursor-pointer" />
             </button>
 
             <h2 className="text-xl text-center font-bold mb-4">
