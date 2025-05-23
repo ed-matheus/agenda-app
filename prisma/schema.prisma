@@ -15,26 +15,25 @@ datasource db {
 }
 
 model Usuario {
-  id        Int          @id @default(autoincrement())
-  nome      String
-  telefone  String
-  email     String       @unique
-  senha     String       // Senha com hash (por segurança)
-  tipo      UsuarioTipo
-  createdAt DateTime     @default(now())
+  id            Int           @id @default(autoincrement())
+  nome          String
+  telefone      String
+  email         String        @unique
+  senha         String        // Salvará o hash da senha
+  tipo          UsuarioTipo
+  createdAt     DateTime      @default(now())
+  agendamentos  Agendamento[] // Relacionamento com os agendamentos
 
-  agendamentos Agendamento[]
-
-  @@map("usuarios") // Nome da tabela no banco
+  @@map("usuarios")
 }
 
 model Agendamento {
-  id        Int      @id @default(autoincrement())
-  servico   String
-  dataHora  DateTime // Combina data e hora do agendamento
-  usuarioId Int
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
-  createdAt DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  servico    String
+  dataHora   DateTime
+  usuarioId  Int
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id])
+  createdAt  DateTime  @default(now())
 
   @@map("agendamentos")
 }

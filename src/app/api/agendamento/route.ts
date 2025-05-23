@@ -1,40 +1,47 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@/generated/prisma";
-// import { prisma } from "@/lib/prisma";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || "segredo-dev";
+
+function verificarToken(req: Request) {
+  const auth = req.headers.get("authorization");
+  if (!auth?.startsWith("Bearer ")) return null;
+  const token = auth.split(" ")[1];
+  try {
+    return jwt.verify(token, JWT_SECRET) as { id: number };
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: Request) {
+  const body = await req.json();
+  const { servico, data, horario } = body;
+  const dataHora = new Date(`${data}T${horario}`);
+
+  const user = verificarToken(req);
+  if (!user)
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+
   try {
-    const body = await req.json();
-
-    const { servico, dataHora, usuarioId } = body;
-
-    if (!servico || !dataHora || !usuarioId) {
-      return NextResponse.json(
-        { error: "Campos obrigatórios faltando." },
-        { status: 400 }
-      );
-    }
-
-    const novoAgendamento = await prisma.agendamento.create({
+    const agendamento = await prisma.agendamento.create({
       data: {
         servico,
-        dataHora: new Date(dataHora),
-        usuario: {
-          connect: { id: usuarioId },
-        },
+        dataHora,
+        usuarioId: user.id,
       },
     });
 
     return NextResponse.json({
       message: "Agendamento realizado com sucesso!",
-      agendamento: novoAgendamento,
+      agendamento,
     });
   } catch (error) {
-    console.error("ERRO AO SALVAR AGENDAMENTO:", error);
+    console.error("Erro ao salvar agendamento:", error);
     return NextResponse.json(
-      { error: "Erro interno do servidor." },
+      { error: "Erro ao salvar agendamento" },
       { status: 500 }
     );
   }
@@ -44,14 +51,14 @@ export async function GET() {
   try {
     const agendamentos = await prisma.agendamento.findMany({
       include: {
-        usuario: true, // para retornar nome, email, etc.
+        usuario: true,
       },
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(agendamentos);
   } catch (error) {
-    console.error("ERRO AO BUSCAR AGENDAMENTOS:", error);
+    console.error("Erro ao buscar agendamentos:", error);
     return NextResponse.json(
       { error: "Erro ao buscar agendamentos." },
       { status: 500 }
