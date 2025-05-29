@@ -47,6 +47,7 @@ export async function POST(req: Request) {
   }
 }
 
+// Pegando agendamentos em geral
 export async function GET() {
   try {
     const agendamentos = await prisma.agendamento.findMany({

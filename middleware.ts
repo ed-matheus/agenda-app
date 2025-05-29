@@ -13,6 +13,26 @@ export function middleware(req: NextRequest) {
   }
 
   try {
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      id: number;
+      tipo: string;
+    };
+
+    const path = req.nextUrl.pathname;
+
+    // Protegendo painel do profissional (prestador de serviços)
+    if (
+      path.startsWith("/dashboard/profissional") &&
+      decoded.tipo !== "profissional"
+    ) {
+      return NextResponse.redirect(new URL("/nao-autorizado", req.url));
+    }
+
+    // Protegendo painel do cliente
+    if (path.startsWith("/dashboard/cliente") && decoded.tipo !== "cliente") {
+      return NextResponse.redirect(new URL("/nao-autorizado", req.url));
+    }
+
     jwt.verify(token, JWT_SECRET);
     return NextResponse.next();
   } catch (error) {

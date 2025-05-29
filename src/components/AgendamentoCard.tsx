@@ -14,7 +14,7 @@ type Agendamento = {
   createdAt: string;
 };
 
-export default function AdminTable() {
+export default function AgendamentoCard() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [selected, setSelected] = useState<Agendamento | null>(null);
 

@@ -1,43 +1,69 @@
-// /pages/api/register.ts
-import type { NextApiRequest, NextApiResponse } from "next";
+// /app/api/auth/register/route.ts
 import { PrismaClient } from "@/generated/prisma";
+import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== "POST")
-    return res.status(405).json({ error: "Método não permitido" });
+export async function POST(req: Request) {
+  const body = await req.json();
+  const { nome, email, telefone, senha, tipo } = body;
 
-  const { nome, email, telefone, senha } = req.body;
-
-  if (!nome || !email || !telefone || !senha) {
-    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+  if (!nome || !email || !telefone || !senha || !tipo) {
+    return NextResponse.json(
+      { error: "Todos os campos são obrigatórios." },
+      { status: 400 }
+    );
   }
 
-  const senhaCriptografada = await bcrypt.hash(senha, 10);
+  if (tipo !== "cliente" && tipo !== "profissional") {
+    return NextResponse.json(
+      { error: "Tipo de usuário inválido." },
+      { status: 400 }
+    );
+  }
 
   try {
+    const usuarioExistente = await prisma.usuario.findUnique({
+      where: { email },
+    });
+
+    if (usuarioExistente) {
+      return NextResponse.json(
+        { error: "Este e-mail já está cadastrado." },
+        { status: 409 }
+      );
+    }
+
+    const senhaCriptografada = await bcrypt.hash(senha, 10);
+
     const novoUsuario = await prisma.usuario.create({
       data: {
         nome,
         email,
         telefone,
         senha: senhaCriptografada,
-        tipo: "cliente",
+        tipo,
       },
     });
 
-    return res
-      .status(201)
-      .json({
+    return NextResponse.json(
+      {
         mensagem: "Usuário registrado com sucesso",
-        usuario: novoUsuario,
-      });
+        usuario: {
+          id: novoUsuario.id,
+          nome: novoUsuario.nome,
+          email: novoUsuario.email,
+          tipo: novoUsuario.tipo,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao registrar o usuário" });
+    console.error("Erro ao registrar:", error);
+    return NextResponse.json(
+      { error: "Erro ao registrar o usuário" },
+      { status: 500 }
+    );
   }
 }
