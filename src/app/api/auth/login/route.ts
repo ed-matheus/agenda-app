@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   const { email, senha } = await req.json();
 
   const usuario = await prisma.usuario.findUnique({ where: { email } });
+
   if (!usuario)
     return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
 
@@ -22,10 +23,15 @@ export async function POST(req: Request) {
     expiresIn: "1d",
   });
 
-  const response = NextResponse.json({ message: "Login realizado com sucesso" });
+  const response = NextResponse.json({
+    message: "Login realizado com sucesso",
+    token,
+  });
 
-  // Setando cookie HTTP-only
-  response.headers.set("Set-Cookie", `token=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Strict; Secure`);
+  response.headers.set(
+    "Set-Cookie",
+    `token=${token}; HttpOnly; Path=/; Max-Age=86400; SameSite=Strict; Secure`
+  );
 
   return response;
 }
