@@ -14,7 +14,7 @@ export default function Home() {
             complicação.
           </p>
           <Link
-            href="/agendar"
+            href="/cadastro"
             className="bg-white text-blue-600 font-semibold"
           >
             <button

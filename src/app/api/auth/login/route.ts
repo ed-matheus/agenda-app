@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@/generated/prisma";
 import bcrypt from "bcryptjs";
@@ -13,7 +14,10 @@ export async function POST(req: Request) {
   const usuario = await prisma.usuario.findUnique({ where: { email } });
 
   if (!usuario)
-    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Usuário não encontrado" },
+      { status: 404 }
+    );
 
   const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
   if (!senhaCorreta)
@@ -34,4 +38,14 @@ export async function POST(req: Request) {
   );
 
   return response;
+}
+
+export async function GET() {
+  const token = (await cookies()).get("token");
+
+  if (!token) {
+    return NextResponse.json({ authenticated: false }, { status: 401 });
+  }
+
+  return NextResponse.json({ authenticated: true });
 }

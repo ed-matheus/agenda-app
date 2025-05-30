@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -47,7 +48,7 @@ export default function LoginPage() {
       setMensagem({ tipo: "sucesso", texto: "Login realizado com sucesso!" });
 
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/");
       }, 1500);
     } else {
       setMensagem({
@@ -106,6 +107,13 @@ export default function LoginPage() {
             Entrar
           </button>
         </form>
+
+        <div className="text-center mt-5">
+          <p>Ainda não é cadastrado?</p>
+          <Link href={"/cadastro"} className="">
+            <p className="mt-1">Crie sua conta</p>
+          </Link>
+        </div>
       </div>
     </main>
   );

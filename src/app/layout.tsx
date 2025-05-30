@@ -3,6 +3,7 @@ import "./globals.css";
 import { Inter, Rubik } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const rubik = Rubik({ subsets: ["latin"], variable: "--font-rubik" });
@@ -19,12 +20,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${rubik.variable} antialiased`}
-      >
-        <Header />
-        {children}
-        <Footer />
+      <body className={`${inter.variable} ${rubik.variable} antialiased`}>
+        <AuthProvider>
+          <Header />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

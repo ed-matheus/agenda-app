@@ -20,7 +20,12 @@ export function middleware(req: NextRequest) {
 
     const path = req.nextUrl.pathname;
 
-    // Protegendo painel do profissional (prestador de serviços)
+    // Protege a página de agendamento: somente CLIENTES podem acessar
+    if (path === "/agendar" && decoded.tipo !== "cliente") {
+      return NextResponse.redirect(new URL("/nao-autorizado", req.url));
+    }
+
+    // Protegendo painel do profissional
     if (
       path.startsWith("/dashboard/profissional") &&
       decoded.tipo !== "profissional"
@@ -33,14 +38,13 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/nao-autorizado", req.url));
     }
 
-    jwt.verify(token, JWT_SECRET);
     return NextResponse.next();
   } catch (error) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 }
 
-// Aplica apenas em rotas protegidas
+// Aplica apenas nas rotas protegidas
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/agendamento/:path*"],
+  matcher: ["/dashboard/:path*", "/api/agendamento/:path*", "/agendar"],
 };

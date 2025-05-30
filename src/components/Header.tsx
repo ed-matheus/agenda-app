@@ -1,13 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { Menu, X } from "lucide-react";
+import Link from "next/link";
+
+// Ícones
+import { UserRound } from "lucide-react";
 
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated, logout, loading } = useAuth();
+
+  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMenu = () => setIsMobileMenuOpen(false);
 
   const navItems = [
     { label: "Home", path: "/" },
@@ -16,18 +24,17 @@ export default function Header() {
     { label: "Contato", path: "/contato" },
   ];
 
-  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  if (loading) return null;
 
   return (
     <header className="bg-white shadow-md py-4 relative z-50">
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-blue-600">
           AgendApp
         </Link>
 
         {/* Menu Desktop */}
-        <nav className="hidden md:flex text-gray-700 font-medium gap-10">
+        <nav className="hidden lg:flex text-gray-700 font-medium gap-10">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -41,21 +48,50 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Botão Agendar Desktop */}
-        <Link href="/agendar" className="hidden md:block">
-          <button
-            type="button"
-            className="btn bg-blue-500 hover:bg-blue-400 text-white font-bold"
-          >
-            Agendar
-          </button>
-        </Link>
+        {/* Botões Desktop */}
+        <div className="flex gap-3">
+          {!isAuthenticated ? (
+            <>
+              <Link href="/login" className="hidden lg:block">
+                <button
+                  type="button"
+                  className="btn bg-blue-500 hover:bg-blue-400 text-white font-bold"
+                >
+                  Entrar
+                </button>
+              </Link>
+              <Link href="/cadastro" className="hidden lg:block">
+                <button
+                  type="button"
+                  className="btn bg-blue-500 hover:bg-blue-400 text-white font-bold"
+                >
+                  Cadastrar
+                </button>
+              </Link>
+            </>
+          ) : (
+            <Link href="/cliente/perfil" className="hidden lg:block">
+              <button
+                type="button"
+                className="btn bg-green-600 hover:bg-green-500 text-white font-bold"
+              >
+                Meu Perfil
+              </button>
+              <button
+                type="button"
+                className="btn bg-green-600 hover:bg-green-500 text-white font-bold"
+              >
+                Sair
+              </button>
+            </Link>
+          )}
+        </div>
 
         {/* Ícone do menu mobile */}
         <button
           type="button"
           onClick={toggleMenu}
-          className="btn md:hidden text-gray-700 focus:outline-none"
+          className="btn lg:hidden text-gray-700 focus:outline-none"
         >
           {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
@@ -78,14 +114,47 @@ export default function Header() {
               </Link>
             ))}
 
-            <Link href="/agendar" onClick={closeMenu}>
-              <button
-                type="button"
-                className="w-full mt-2 bg-blue-500 hover:bg-blue-400 py-2 px-4 rounded text-white font-bold"
-              >
-                Agendar
-              </button>
-            </Link>
+            <div className="flex flex-col gap-3">
+              {!isAuthenticated ? (
+                <>
+                  <Link href="/login" onClick={closeMenu}>
+                    <button
+                      type="button"
+                      className="w-full mt-2 bg-blue-500 hover:bg-blue-400 py-2 px-4 rounded text-white font-bold"
+                    >
+                      Entrar
+                    </button>
+                  </Link>
+                  <Link href="/cadastro" onClick={closeMenu}>
+                    <button
+                      type="button"
+                      className="w-full mt-2 bg-blue-500 hover:bg-blue-400 py-2 px-4 rounded text-white font-bold"
+                    >
+                      Cadastrar
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <div className="flex gap-3">
+                  <Link href="/perfil" onClick={closeMenu}>
+                    <button
+                      type="button"
+                      className="btn w-50 bg-blue-500 hover:bg-blue-400 py-2 px-4 text-white font-bold flex items-center justify-center gap-1"
+                    >
+                      <UserRound size={22} />
+                      Meu Perfil
+                    </button>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="w-50 border-2 border-red-700 hover:bg-red-700 py-2 px-4 text-red-700 hover:text-white rounded font-bold"
+                  >
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
           </nav>
         </div>
       )}
