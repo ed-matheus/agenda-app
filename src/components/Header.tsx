@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Menu, X } from "lucide-react";
+import { Menu, X, CalendarDays } from "lucide-react";
 import Link from "next/link";
 
 // Ícones
@@ -12,7 +12,7 @@ import { UserRound } from "lucide-react";
 export default function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isAuthenticated, logout, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMenu = () => setIsMobileMenuOpen(false);
@@ -115,7 +115,30 @@ export default function Header() {
             ))}
 
             <div className="flex flex-col gap-3">
-              {!isAuthenticated ? (
+              {isAuthenticated ? (
+                <div className="w-full flex justify-between">
+                  <Link href="/perfil">
+                    <button
+                      type="button"
+                      onClick={closeMenu}
+                      className="btn w-40 bg-gray-700 hover:bg-gray-600 py-2 px-4 text-white font-bold flex items-center justify-center gap-1"
+                    >
+                      <UserRound size={22} />
+                      Meu Perfil
+                    </button>
+                  </Link>
+                  <Link href={"/agendar"}>
+                    <button
+                      type="button"
+                      onClick={closeMenu}
+                      className="btn w-40 bg-blue-500 hover:bg-blue-400 py-2 px-4 text-white font-bold flex items-center justify-center gap-1.5"
+                    >
+                      <CalendarDays size={22} />
+                      Agendar
+                    </button>
+                  </Link>
+                </div>
+              ) : (
                 <>
                   <Link href="/login" onClick={closeMenu}>
                     <button
@@ -134,25 +157,6 @@ export default function Header() {
                     </button>
                   </Link>
                 </>
-              ) : (
-                <div className="flex gap-3">
-                  <Link href="/perfil" onClick={closeMenu}>
-                    <button
-                      type="button"
-                      className="btn w-50 bg-blue-500 hover:bg-blue-400 py-2 px-4 text-white font-bold flex items-center justify-center gap-1"
-                    >
-                      <UserRound size={22} />
-                      Meu Perfil
-                    </button>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className="w-50 border-2 border-red-700 hover:bg-red-700 py-2 px-4 text-red-700 hover:text-white rounded font-bold"
-                  >
-                    Sair
-                  </button>
-                </div>
               )}
             </div>
           </nav>
