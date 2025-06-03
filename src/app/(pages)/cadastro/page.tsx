@@ -44,7 +44,7 @@ const RegisterPage = () => {
     if (res.ok) {
       setSuccessMessage("Cadastro realizado com sucesso!");
       setTimeout(() => {
-        router.push("/bem-vindo"); // Altere para a página final que você vai criar
+        router.push("/agendar"); 
       }, 2000);
     } else {
       setErrors({ geral: data.error || "Erro ao cadastrar." });

@@ -1,24 +1,48 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import withAuth from "@/hoc/withAuth";
 import Image from "next/image";
 
 // Ícones
-import { Mail, Phone, CreditCard, LogOut, Pencil } from "lucide-react";
-import withAuth from "@/hoc/withAuth";
+import { Mail, Phone, User, LogOut, Pencil } from "lucide-react";
+
+type Usuario = {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string;
+  tipo: string;
+  createdAt: string;
+};
 
 const ProfilePage = () => {
   const { logout } = useAuth();
+  const [user, setUser] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dados de exemplo temporários
-  const user = {
-    displayName: "Ana Souza",
-    email: "ana.souza@email.com",
-    phone: "(11) 91234-5678",
-    cpf: "123.456.789-00",
-    plan: "Gratuito",
-    avatar: "https://i.pravatar.cc/150?img=47",
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/user");
+        if (!res.ok) throw new Error("Erro ao obter dados do usuário");
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+        logout(); // força logout se houver erro
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [logout]);
+
+  if (loading) return <div className="p-4">Carregando dados do perfil...</div>;
+  if (!user) return <div className="p-4">Usuário não encontrado.</div>;
 
   return (
     <div className="min-h-screen mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg shadow-gray-300">
@@ -32,16 +56,17 @@ const ProfilePage = () => {
           />
         </div>
         <h1 className="text-2xl font-bold text-gray-800 mb-1">
-          {user.displayName}
+          {user.nome}
         </h1>
         <span className="text-sm text-gray-500 mb-4">
           Plano atual:{" "}
           <span
-            className={`${
-              user.plan === "PRO" ? "text-green-600" : "text-blue-600"
-            } font-medium`}
+            // className={`${
+            //   user.plan === "PRO" ? "text-green-600" : "text-blue-600"
+            // } font-medium`}
           >
-            {user.plan}
+            {/* {user.plan} */}
+            gratuito
           </span>
         </span>
       </div>
@@ -53,11 +78,11 @@ const ProfilePage = () => {
         </div>
         <div className="flex items-center gap-2">
           <Phone size={18} className="text-gray-500" />
-          <span>{user.phone}</span>
+          <span>{user.telefone}</span>
         </div>
         <div className="flex items-center gap-2">
-          <CreditCard size={18} className="text-gray-500" />
-          <span>{user.cpf}</span>
+          <User size={18} className="text-gray-500" />
+          <span>Cadastrado como: {user.tipo}</span>
         </div>
       </div>
 

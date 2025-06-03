@@ -18,10 +18,8 @@ export default function Header() {
   const closeMenu = () => setIsMobileMenuOpen(false);
 
   const navItems = [
-    { label: "Home", path: "/" },
-    { label: "Serviços", path: "/servicos" },
-    { label: "Sobre", path: "/sobre" },
-    { label: "Contato", path: "/contato" },
+    { label: "Agendamentos", path: "/" },
+    { label: "Ajuda", path: "/ajuda" },
   ];
 
   if (loading) return null;
@@ -29,9 +27,9 @@ export default function Header() {
   return (
     <header className="bg-white shadow-md py-4 relative z-50">
       <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-blue-600">
+        <h2 className="text-2xl font-bold text-blue-600">
           AgendApp
-        </Link>
+        </h2>
 
         {/* Menu Desktop */}
         <nav className="hidden lg:flex text-gray-700 font-medium gap-10">
@@ -70,20 +68,27 @@ export default function Header() {
               </Link>
             </>
           ) : (
-            <Link href="/cliente/perfil" className="hidden lg:block">
-              <button
-                type="button"
-                className="btn bg-green-600 hover:bg-green-500 text-white font-bold"
-              >
-                Meu Perfil
-              </button>
-              <button
-                type="button"
-                className="btn bg-green-600 hover:bg-green-500 text-white font-bold"
-              >
-                Sair
-              </button>
-            </Link>
+            <>
+              <Link href="/cliente/perfil" className="hidden lg:block">
+                <button
+                  type="button"
+                  className="btn w-40 bg-gray-700 hover:bg-gray-600 py-2 px-4 text-white font-bold flex items-center justify-center gap-1"
+                >
+                  <UserRound size={22} />
+                  Meu Perfil
+                </button>
+              </Link>
+              <Link href={"/agendar"} className="hidden lg:block">
+                <button
+                  type="button"
+                  onClick={closeMenu}
+                  className="btn w-40 bg-blue-500 hover:bg-blue-400 py-2 px-4 text-white font-bold flex items-center justify-center gap-1.5"
+                >
+                  <CalendarDays size={22} />
+                  Agendar
+                </button>
+              </Link>
+            </>
           )}
         </div>
 

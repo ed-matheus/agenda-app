@@ -49,7 +49,7 @@ export default function LoginPage() {
 
       setTimeout(() => {
         router.push("/");
-      }, 1500);
+      }, 1200);
     } else {
       setMensagem({
         tipo: "erro",
@@ -111,7 +111,9 @@ export default function LoginPage() {
         <div className="text-center mt-5">
           <p>Ainda não é cadastrado?</p>
           <Link href={"/cadastro"} className="">
-            <p className="mt-1 text-blue-500 hover:text-blue-400">Crie sua conta</p>
+            <p className="mt-1 text-blue-500 hover:text-blue-400">
+              Crie sua conta
+            </p>
           </Link>
         </div>
       </div>
