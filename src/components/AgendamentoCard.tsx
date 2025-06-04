@@ -3,15 +3,19 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-type Agendamento = {
-  id: number;
+type Usuario = {
   nome: string;
   email: string;
   telefone: string;
+};
+
+type Agendamento = {
+  id: number;
   servico: string;
   data: string;
   horario: string;
   createdAt: string;
+  usuario: Usuario;
 };
 
 export default function AgendamentoCard() {
@@ -21,16 +25,25 @@ export default function AgendamentoCard() {
   useEffect(() => {
     fetch("/api/agendamento")
       .then((res) => res.json())
-      .then(setAgendamentos);
-  }, []);
+      .then((dados) => {
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        const formatados = dados.map((ag: any) => {
+          const dataObj = new Date(ag.dataHora);
 
-  const formatarDataAgendamento = (dataISO: string) => {
-    const data = new Date(dataISO);
-    const dia = String(data.getDate()).padStart(2, "0");
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-  };
+          return {
+            ...ag,
+            data: dataObj.toLocaleDateString("pt-BR", { timeZone: "UTC" }),
+            horario: dataObj.toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "UTC",
+            }),
+          };
+        });
+
+        setAgendamentos(formatados);
+      });
+  }, []);
 
   return (
     <div className="w-full min-h-screen">
@@ -46,26 +59,37 @@ export default function AgendamentoCard() {
             key={ag.id}
             type="button"
             onClick={() => setSelected(ag)}
-            className="text-left w-full bg-gray-100 p-4 rounded-xl shadow hover:bg-gray-200 transition cursor-pointer"
+            className="w-full text-left bg-gray-100 p-4 rounded-xl shadow hover:bg-gray-200 transition cursor-pointer"
           >
-            <p className="text-lg font-semibold">{ag.nome}</p>
+            <p className="text-lg font-semibold">{ag.usuario?.nome}</p>
             <p className="text-sm text-zinc-400">{ag.servico}</p>
             <p className="text-sm text-zinc-400">
-              {formatarDataAgendamento(ag.data)} - {ag.horario}
+              {ag.data} - {ag.horario}
             </p>
           </button>
         ))}
       </div>
 
       {selected && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-5">
-          <div className="bg-gray-200 rounded-xl p-8 max-w-md w-full text-sm text-black relative">
+        // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-5"
+          onClick={() => setSelected(null)}
+        >
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+          <div
+            className="bg-gray-200 rounded-xl p-8 max-w-md w-full text-sm text-black relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               onClick={() => setSelected(null)}
               className="absolute top-2.5 right-2.5 text-lg"
             >
-              <X size={25} className="text-gray-400 hover:text-black hover:cursor-pointer" />
+              <X
+                size={25}
+                className="text-gray-400 hover:text-black hover:cursor-pointer"
+              />
             </button>
 
             <h2 className="text-xl text-center font-bold mb-4">
@@ -77,26 +101,26 @@ export default function AgendamentoCard() {
                 <strong>ID:</strong> {selected.id}
               </li>
               <li>
-                <strong>Nome:</strong> {selected.nome}
+                <strong>Nome:</strong> {selected.usuario?.nome}
               </li>
               <li>
-                <strong>Email:</strong> {selected.email}
+                <strong>Email:</strong> {selected.usuario?.email}
               </li>
               <li>
-                <strong>Telefone:</strong> {selected.telefone}
+                <strong>Telefone:</strong> {selected.usuario?.telefone}
               </li>
               <li>
                 <strong>Serviço:</strong> {selected.servico}
               </li>
               <li>
-                <strong>Data:</strong> {formatarDataAgendamento(selected.data)}
+                <strong>Data:</strong> {selected.data}
               </li>
               <li>
                 <strong>Horário:</strong> {selected.horario}
               </li>
               <li>
                 <strong>Criado em:</strong>{" "}
-                {new Date(selected.createdAt).toLocaleString()}
+                {new Date(selected.createdAt).toLocaleString("pt-BR")}
               </li>
             </ul>
           </div>
