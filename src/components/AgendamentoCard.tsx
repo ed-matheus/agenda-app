@@ -1,131 +1,119 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, Eye, Trash2 } from "lucide-react";
+import type { Agendamento } from "@/app/page";
 
-type Usuario = {
-  nome: string;
-  email: string;
-  telefone: string;
+type Props = {
+  agendamentos: Agendamento[];
+  onDelete: (id: number) => void;
 };
 
-type Agendamento = {
-  id: number;
-  servico: string;
-  data: string;
-  horario: string;
-  createdAt: string;
-  usuario: Usuario;
-};
-
-export default function AgendamentoCard() {
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
+export default function AgendamentoCard({ agendamentos, onDelete }: Props) {
   const [selected, setSelected] = useState<Agendamento | null>(null);
+  const selectedRef = useRef<HTMLDivElement>(null);
 
+  const closeSelected = () => setSelected(null);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      selectedRef.current &&
+      !selectedRef.current.contains(event.target as Node)
+    ) {
+      closeSelected();
+    }
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    fetch("/api/agendamento")
-      .then((res) => res.json())
-      .then((dados) => {
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        const formatados = dados.map((ag: any) => {
-          const dataObj = new Date(ag.dataHora);
-
-          return {
-            ...ag,
-            data: dataObj.toLocaleDateString("pt-BR", { timeZone: "UTC" }),
-            horario: dataObj.toLocaleTimeString("pt-BR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              timeZone: "UTC",
-            }),
-          };
-        });
-
-        setAgendamentos(formatados);
-      });
-  }, []);
+    if (selected) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selected]);
 
   return (
-    <div className="w-full min-h-screen">
-      {agendamentos.length === 0 && (
-        <p className="text-center text-gray-400 mt-6">
-          Nenhum agendamento encontrado.
-        </p>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {agendamentos.map((ag) => (
-          <button
-            key={ag.id}
-            type="button"
-            onClick={() => setSelected(ag)}
-            className="w-full text-left bg-gray-100 p-4 rounded-xl shadow hover:bg-gray-200 transition cursor-pointer"
-          >
-            <p className="text-lg font-semibold">{ag.usuario?.nome}</p>
-            <p className="text-sm text-zinc-400">{ag.servico}</p>
-            <p className="text-sm text-zinc-400">
-              {ag.data} - {ag.horario}
-            </p>
-          </button>
-        ))}
-      </div>
+    <>
+      {agendamentos.map((agendamento) => (
+        <div
+          key={agendamento.id}
+          className="bg-white p-4 rounded-xl shadow-sm relative"
+        >
+          <p className="text-xs text-gray-400 mb-2">
+            Criado em: {agendamento.createdAt}
+          </p>
+          <h3 className="font-semibold text-lg mb-1">{agendamento.nome}</h3>
+          <p className="text-sm mb-1">{agendamento.servico}</p>
+          <p className="text-sm text-gray-600 mb-1">
+            {agendamento.data} às {agendamento.horario}
+          </p>
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              type="button"
+              onClick={() => setSelected(agendamento)}
+              onKeyDown={(e) => e.key === "Enter" && setSelected(agendamento)}
+              className="flex items-center gap-1 text-sm text-blue-500 hover:underline"
+            >
+              <Eye size={16} />
+              Ver
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(agendamento.id)}
+              onKeyDown={(e) => e.key === "Enter" && onDelete(agendamento.id)}
+              className="flex items-center gap-1 text-sm text-red-500 hover:underline"
+            >
+              <Trash2 size={16} />
+              Cancelar
+            </button>
+          </div>
+        </div>
+      ))}
 
       {selected && (
-        // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-        <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-5"
-          onClick={() => setSelected(null)}
-        >
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div
-            className="bg-gray-200 rounded-xl p-8 max-w-md w-full text-sm text-black relative"
-            onClick={(e) => e.stopPropagation()}
+            ref={selectedRef}
+            className="bg-white rounded-xl p-6 w-[90%] max-w-md shadow-lg relative"
           >
             <button
               type="button"
-              onClick={() => setSelected(null)}
-              className="absolute top-2.5 right-2.5 text-lg"
+              onClick={closeSelected}
+              onKeyDown={(e) => e.key === "Enter" && closeSelected()}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
             >
-              <X
-                size={25}
-                className="text-gray-400 hover:text-black hover:cursor-pointer"
-              />
+              <X size={20} />
             </button>
 
-            <h2 className="text-xl text-center font-bold mb-4">
+            <h2 className="text-xl font-semibold mb-4">
               Detalhes do Agendamento
             </h2>
-
-            <ul className="space-y-1">
-              <li>
-                <strong>ID:</strong> {selected.id}
-              </li>
-              <li>
-                <strong>Nome:</strong> {selected.usuario?.nome}
-              </li>
-              <li>
-                <strong>Email:</strong> {selected.usuario?.email}
-              </li>
-              <li>
-                <strong>Telefone:</strong> {selected.usuario?.telefone}
-              </li>
-              <li>
-                <strong>Serviço:</strong> {selected.servico}
-              </li>
-              <li>
-                <strong>Data:</strong> {selected.data}
-              </li>
-              <li>
-                <strong>Horário:</strong> {selected.horario}
-              </li>
-              <li>
-                <strong>Criado em:</strong>{" "}
-                {new Date(selected.createdAt).toLocaleString("pt-BR")}
-              </li>
-            </ul>
+            <p className="mb-2">
+              <strong>Nome:</strong> {selected.usuario.nome}
+            </p>
+            <p className="mb-2">
+              <strong>Email:</strong> {selected.usuario.email}
+            </p>
+            <p className="mb-2">
+              <strong>Telefone:</strong> {selected.usuario.telefone}
+            </p>
+            <p className="mb-2">
+              <strong>Serviço:</strong> {selected.servico}
+            </p>
+            <p className="mb-2">
+              <strong>Data:</strong> {selected.data}
+            </p>
+            <p className="mb-2">
+              <strong>Horário:</strong> {selected.horario}
+            </p>
+            <p className="text-sm text-gray-400">
+              Criado em: {selected.createdAt}
+            </p>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
